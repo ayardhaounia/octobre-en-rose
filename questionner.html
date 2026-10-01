@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي التوعية بسرطان الثدي</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .quiz-card {
+            background: #1e1e1e;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 20px;
+            padding: 24px 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            min-height: 480px;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        /* العناصر المشتركة */
+        .ribbon-icon {
+            font-size: 3.5rem;
+            margin-bottom: 12px;
+            line-height: 1;
+        }
+
+        .pink-badge {
+            background-color: rgba(233, 30, 99, 0.15);
+            color: #ff4081;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 64, 129, 0.3);
+        }
+
+        .title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 12px;
+            line-height: 1.3;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #a0a0a0;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        /* شريط التقدّم العلوي */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #2c2c2c;
+        }
+
+        .check-marks {
+            display: flex;
+            gap: 4px;
+            color: #4caf50;
+            font-size: 0.85rem;
+        }
+
+        .progress-text {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .badges {
+            display: flex;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge-wrong { background-color: #b71c1c; color: #ffffff; }
+        .badge-correct { background-color: #1b5e20; color: #ffffff; }
+
+        /* الأسئلة والخيارات */
+        .question-number {
+            text-align: center;
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .option-card {
+            background-color: #2c2c2c;
+            border-radius: 12px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border: 2px solid transparent;
+            text-align: right;
+            width: 100%;
+        }
+
+        .option-card:hover { background-color: #383838; }
+
+        .option-card.selected-correct {
+            background-color: #2c2c2c;
+            border-color: #2e7d32;
+        }
+
+        .option-card.selected-wrong {
+            background-color: #2c2c2c;
+            border-color: #c62828;
+        }
+
+        .correct-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background-color: #1b5e20;
+            color: #ffffff;
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .user-tag {
+            color: #a0a0a0;
+            font-size: 0.8rem;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .option-text {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #e0e0e0;
+        }
+
+        .explanation-text {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #b0b0b0;
+            line-height: 1.5;
+            border-top: 1px solid #3d3d3d;
+            padding-top: 8px;
+        }
+
+        /* شاشة النتيجة */
+        .score-box {
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 16px 0 20px 0;
+            box-shadow: 0 4px 20px rgba(21, 101, 192, 0.4);
+        }
+
+        .score-number { font-size: 2.2rem; font-weight: 800; color: #ffffff; }
+        .score-label { font-size: 0.75rem; color: #bbdefb; }
+
+        .stats-summary {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background-color: #2c2c2c;
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-card.correct { border-bottom: 3px solid #4caf50; }
+        .stat-card.wrong { border-bottom: 3px solid #f44336; }
+
+        .stat-val { font-size: 1.2rem; font-weight: bold; color: #fff; }
+        .stat-title { font-size: 0.8rem; color: #9e9e9e; margin-top: 2px; }
+
+        /* الأزرار */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 20px;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary { background-color: #1565c0; color: #ffffff; width: 100%; }
+        .btn-primary:hover { background-color: #1e88e5; }
+        .btn-retour { background-color: #424242; color: #ffffff; }
+        .btn-suivant { background-color: #1565c0; color: #ffffff; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-card">
+
+    <!-- 1. الصفحة الأولى (صفحة الترحيب) -->
+    <div id="start-page" class="page active">
+        <div class="ribbon-icon">🎀</div>
+        <div class="pink-badge">شهر التوعية العالمي • أكتوبر الوردي</div>
+        <h1 class="title">تحدي الـ 5 أسئلة للتوعية بسرطان الثدي</h1>
+        <p class="subtitle">
+            اختبري معلوماتك الصحية واكتشفي الحقائق الأساسية حول أهمية الكشف المبكر والوقاية من خلال 5 أسئلة تفاعلية.
+        </p>
+        <button class="btn btn-primary" onclick="startQuiz()">بدء التحدي الآن 🚀</button>
+    </div>
+
+    <!-- 2. صفحة الأسئلة -->
+    <div id="quiz-page" class="page">
+        <div class="top-bar">
+            <div class="check-marks">✓ ✓ ✓ ✓ ✓</div>
+            <div class="progress-text" id="progress-text">1/5</div>
+            <div class="badges">
+                <div class="badge badge-wrong">✕ <span id="wrong-count">0</span></div>
+                <div class="badge badge-correct">✓ <span id="correct-count">0</span></div>
+            </div>
+        </div>
+
+        <div class="question-number" id="question-number">Question 1</div>
+        <h2 class="title" id="question-title">جاري تحميل السؤال...</h2>
+
+        <div class="options-list" id="options-container"></div>
+
+        <div class="action-buttons">
+            <button class="btn btn-retour" id="btn-retour" onclick="prevQuestion()">Retour</button>
+            <button class="btn btn-suivant" id="btn-suivant" onclick="nextQuestion()">Suivant</button>
+        </div>
+    </div>
+
+    <!-- 3. الصفحة الأخيرة (النتيجة) -->
+    <div id="result-page" class="page">
+        <div class="ribbon-icon">🏆</div>
+        <h1 class="title">ملخص النتيجة النهائية</h1>
+        <p class="subtitle" id="result-msg"></p>
+
+        <div class="score-box">
+            <div class="score-number" id="final-score">0/5</div>
+            <div class="score-label">إجابات صحيحة</div>
+        </div>
+
+        <div class="stats-summary">
+            <div class="stat-card correct">
+                <span class="stat-val" id="correct-val">0</span>
+                <span class="stat-title">صحيحة ✓</span>
+            </div>
+            <div class="stat-card wrong">
+                <span class="stat-val" id="wrong-val">0</span>
+                <span class="stat-title">خاطئة ✕</span>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="restartQuiz()">إعادة التحدي 🔄</button>
+    </div>
+
+</div>
+
+<script>
+    const questionsData = [
+        {
+            number: "Question 1",
+            title: "هل يصيب سرطان الثدي النساء فقط؟",
+            options: [
+                {
+                    text: "خطأ، يمكن أن يصيب الرجال أيضاً بنسبة قادرة على حدوث وإن كانت نادرة.",
+                    explanation: "يمتلك الرجال كمية صغيرة من أنسجة الثدي، وعلى الرغم من أن المرض يصيب النساء بنسبة أصلية أعلى بكثير، إلا أنه قد يصيب الرجال أيضاً بنسبة تقارب 1% من إجمالي الحالات.",
+                    isCorrect: true
+                },
+                {
+                    text: "صح، يصيب النساء فقط ولا يمكن حيوياً أن يصيب الرجال.",
+                    explanation: "",
+                    isCorrect: false
+                }
+            ]
+        },
+        {
+            number: "Question 2",
+            title: "هل وجود كتلة في الثدي يعني حتماً الإصابة بالسرطان؟",
+            options: [
+                {
+                    text: "صح، أي كتلة تظهر هي ورم خبيث فوراً.",
+                    explanation: "",
+                    isCorrect: false
+                },
+                {
+                    text: "خطأ، معظم الكتل المستكشفة تكون أكياساً حميدة أو تغيرات نسيجية غير سرطانية.",
+                    explanation: "معظم الكتل التي يتم اكتشافها تطلع أكياساً زلالية أو أوراماً حميدة (Fibroadenoma)، لكن الاستشارة الطبية ضرورية دائماً للتأكد.",
+                    isCorrect: true
+                }
+            ]
+        },
+        {
+            number: "Question 3",
+            title: "ما هي نسبة الشفاء من سرطان الثدي عند اكتشافه في المراحل المبكرة جداً؟",
+            options: [
+                { text: "حوالي 50%", explanation: "", isCorrect: false },
+                { text: "لا يمكن الشفاء منه إطلاقاً", explanation: "", isCorrect: false },
+                {
+                    text: "تصل إلى أكثر من 95%",
+                    explanation: "الكشف المبكر يرفع نسب الشفاء الكامل إلى مستويات مرتفعة جداً تتجاوز 95% لأن الورم يكون محدداً ويسهل التعامل معه.",
+                    isCorrect: true
+                },
+                { text: "حوالي 30%", explanation: "", isCorrect: false }
+            ]
+        },
+        {
+            number: "Question 4",
+            title: "هل إجراء فحص الماموجرام (Mammogram) يسبب انتشاره أو الإصابة به بسبب الإشعاع؟",
+            options: [
+                {
+                    text: "خطأ، كمية الأشعة المستخدمة ضئيلة وآمنة وتوازي الأشعة السينية العادية.",
+                    explanation: "فحص الماموجرام آمن جداً وفائدته في الاكتشاف المبكر تتفوق بكثير على الجرعة الإشعاعية الضئيلة والمحسوبة بدقة.",
+                    isCorrect: true
+                },
+                {
+                    text: "صح، الأشعة المستخدمة ضارة جداً وتسبب أوراماً.",
+                    explanation: "",
+                    isCorrect: false
+                }
+            ]
+        },
+        {
+            number: "Question 5",
+            title: "إذا لم يكن هناك تاريخ عائلي لإصابة بسطح الثدي، فهذا يعني أن المرأة غير معرضة للإصابة مطلقاً؟",
+            options: [
+                {
+                    text: "صح، المرض وراثي فقط ولا يصيب إلا من لديه جينات موروثة.",
+                    explanation: "",
+                    isCorrect: false
+                },
+                {
+                    text: "خطأ، غالبية الحالات تشخص لدى نساء ليس لديهن تاريخ عائلي للمرض.",
+                    explanation: "حوالي 80% إلى 85% من النساء المصابات بسطح الثدي ليس لديهن أي تاريخ عائلي للمرض، مما يجعل الفحص الدوري مهماً للجميع.",
+                    isCorrect: true
+                }
+            ]
+        }
+    ];
+
+    let currentIndex = 0;
+    let userAnswers = new Array(questionsData.length).fill(null);
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    function startQuiz() {
+        showPage('quiz-page');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const q = questionsData[currentIndex];
+        document.getElementById('question-number').textContent = q.number;
+        document.getElementById('question-title').textContent = q.title;
+        document.getElementById('progress-text').textContent = `${currentIndex + 1}/${questionsData.length}`;
+
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+
+        q.options.forEach((opt, idx) => {
+            const card = document.createElement('div');
+            card.className = 'option-card';
+
+            const selectedOptIndex = userAnswers[currentIndex];
+            if (selectedOptIndex !== null) {
+                if (idx === selectedOptIndex) {
+                    card.classList.add(opt.isCorrect ? 'selected-correct' : 'selected-wrong');
+                }
+            }
+
+            let htmlContent = '';
+            if (selectedOptIndex !== null && opt.isCorrect) {
+                htmlContent += `<div class="correct-tag">Réponse correcte ✓</div>`;
+            }
+
+            htmlContent += `<div class="option-text">${opt.text}</div>`;
+
+            if (selectedOptIndex !== null && idx === selectedOptIndex) {
+                htmlContent += `<span class="user-tag">(votre réponse)</span>`;
+            }
+
+            if (selectedOptIndex !== null && opt.explanation && (opt.isCorrect || idx === selectedOptIndex)) {
+                htmlContent += `<div class="explanation-text">${opt.explanation}</div>`;
+            }
+
+            card.innerHTML = htmlContent;
+            card.onclick = () => selectOption(idx);
+            container.appendChild(card);
+        });
+
+        updateStats();
+
+        document.getElementById('btn-retour').disabled = currentIndex === 0;
+        const btnSuivant = document.getElementById('btn-suivant');
+        btnSuivant.textContent = (currentIndex === questionsData.length - 1) ? "عرض النتيجة" : "Suivant";
+    }
+
+    function selectOption(optIndex) {
+        userAnswers[currentIndex] = optIndex;
+        loadQuestion();
+    }
+
+    function updateStats() {
+        let correct = 0;
+        let wrong = 0;
+
+        userAnswers.forEach((ans, idx) => {
+            if (ans !== null) {
+                if (questionsData[idx].options[ans].isCorrect) correct++;
+                else wrong++;
+            }
+        });
+
+        document.getElementById('correct-count').textContent = correct;
+        document.getElementById('wrong-count').textContent = wrong;
+    }
+
+    function nextQuestion() {
+        if (currentIndex < questionsData.length - 1) {
+            currentIndex++;
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            loadQuestion();
+        }
+    }
+
+    function showResult() {
+        showPage('result-page');
+
+        let correct = 0;
+        let wrong = 0;
+        userAnswers.forEach((ans, idx) => {
+            if (ans !== null) {
+                if (questionsData[idx].options[ans].isCorrect) correct++;
+                else wrong++;
+            }
+        });
+
+        document.getElementById('final-score').textContent = `${correct}/${questionsData.length}`;
+        document.getElementById('correct-val').textContent = correct;
+        document.getElementById('wrong-val').textContent = wrong;
+
+        const msg = document.getElementById('result-msg');
+        if (correct === questionsData.length) {
+            msg.textContent = "ممتاز! أداء رائع ومعرفة قيمة حول صحتك والوقاية.";
+        } else if (correct >= 3) {
+            msg.textContent = "نتيجة جيدة جداً! شكراً لمشاركتك في الحملة التوعوية.";
+        } else {
+            msg.textContent = "شكراً لمشاركتك، تذكري دائماً أهمية الفحص الدوري للتوعية والوقاية.";
+        }
+    }
+
+    function restartQuiz() {
+        currentIndex = 0;
+        userAnswers.fill(null);
+        startQuiz();
+    }
+</script>
+
+</body>
+</html>

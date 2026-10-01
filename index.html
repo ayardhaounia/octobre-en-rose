@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي الـ 5 أسئلة للتوعية بسرطان الثدي</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #fce4ec;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .outer-frame {
+            background-color: #ffffff;
+            border: 8px solid #f06292;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 10px 25px rgba(240, 98, 146, 0.15);
+            position: relative;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .butterfly {
+            font-size: 2rem;
+            color: #f06292;
+            margin: 0 auto;
+            display: block;
+            text-align: center;
+        }
+
+        .score-top {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #212121;
+            position: absolute;
+            top: 24px;
+            left: 24px;
+        }
+
+        .main-title {
+            text-align: center;
+            color: #880e4f;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 8px 0;
+        }
+
+        .ribbon-img {
+            text-align: center;
+            font-size: 3.5rem;
+            margin: 5px 0 15px 0;
+            line-height: 1;
+        }
+
+        .question-counter {
+            text-align: center;
+            font-weight: bold;
+            color: #212121;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .question-text {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 24px;
+        }
+
+        /* شبكة الاختيارات 2x2 */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            background-color: #ffffff;
+            border: 2px solid #ad1457;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #212121;
+        }
+
+        .option-btn:hover {
+            background-color: #f8bbd0;
+        }
+
+        .option-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .letter-badge {
+            border: 1.5px solid #ad1457;
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-weight: bold;
+            color: #ad1457;
+            background-color: #fff;
+        }
+
+        /* حالات الإجابة الصحيحة والخاطئة */
+        .option-btn.correct {
+            border-color: #2e7d32 !important;
+            background-color: #e8f5e9 !important;
+        }
+
+        .option-btn.correct .letter-badge {
+            border-color: #2e7d32;
+            color: #2e7d32;
+        }
+
+        .option-btn.wrong {
+            border-color: #c62828 !important;
+            background-color: #ffebee !important;
+        }
+
+        .option-btn.wrong .letter-badge {
+            border-color: #c62828;
+            color: #c62828;
+        }
+
+        .icon-check {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .icon-cross {
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        /* زر التالي */
+        .footer-action {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .next-btn {
+            background-color: #ffffff;
+            border: 2px solid #424242;
+            border-radius: 8px;
+            padding: 8px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #212121;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .next-btn:hover {
+            background-color: #eeeeee;
+        }
+
+        /* شاشة النتيجة */
+        .result-screen {
+            text-align: center;
+            display: none;
+            padding: 20px 0;
+        }
+
+        .result-screen h2 {
+            color: #880e4f;
+            font-size: 1.8rem;
+            margin-bottom: 16px;
+        }
+
+        .final-score-text {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #ad1457;
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="outer-frame">
+    <div class="score-top">المجموع الحالي: <span id="current-score">0</span>/5</div>
+    <div class="butterfly">🦋</div>
+    <h1 class="main-title">تحدي الـ 5 أسئلة للتوعية بسرطان الثدي</h1>
+    <div class="ribbon-img">🎗️</div>
+
+    <!-- شاشة السؤال -->
+    <div id="quiz-box">
+        <div class="question-counter" id="question-counter">السؤال 1 من 5</div>
+        <div class="question-text" id="question-text">جاري تحميل السؤال...</div>
+
+        <div class="options-grid" id="options-grid"></div>
+
+        <div class="footer-action">
+            <button class="next-btn" id="next-btn" onclick="nextQuestion()">السؤال التالي</button>
+        </div>
+    </div>
+
+    <!-- شاشة النتيجة النهائية -->
+    <div id="result-box" class="result-screen">
+        <h2>انتهى التحدي التوعوي! 🏆</h2>
+        <p style="font-size: 1.1rem; color: #424242;">مجموع إجاباتك الصحيحة هو:</p>
+        <div class="final-score-text" id="final-score">0 / 5</div>
+        <p id="result-desc" style="color: #616161; font-size: 1rem; margin-bottom: 24px;"></p>
+        <button class="next-btn" style="margin: 0 auto; display: block;" onclick="restartQuiz()">إعادة التحدي 🔄</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            question: "ما هي الفائدة الرئيسية للكشف المبكر؟",
+            options: [
+                { letter: "A", text: "علاج أسهل وفرص شفاء أكبر", isCorrect: true },
+                { letter: "B", text: "لا يوجد فائدة حقيقية", isCorrect: false },
+                { letter: "C", text: "زيادة تكاليف العلاج", isCorrect: false },
+                { letter: "D", text: "إحباط المريضة", isCorrect: false }
+            ]
+        },
+        {
+            question: "هل يصيب سرطان الثدي النساء فقط؟",
+            options: [
+                { letter: "A", text: "نعم، يصيب النساء حصراً", isCorrect: false },
+                { letter: "B", text: "لا، قد يصيب الرجال بنسبة ضئيلة أيضاً", isCorrect: true },
+                { letter: "C", text: "يصيب الأطفال فقط", isCorrect: false },
+                { letter: "D", text: "يصيب كبار السن من الرجال فقط", isCorrect: false }
+            ]
+        },
+        {
+            question: "ما هي نسبة الشفاء من سرطان الثدي عند اكتشافه مبكراً؟",
+            options: [
+                { letter: "A", text: "حوالي 30%", isCorrect: false },
+                { letter: "B", text: "حوالي 50%", isCorrect: false },
+                { letter: "C", text: "تصل إلى أكثر من 95%", isCorrect: true },
+                { letter: "D", text: "لا يمكن الشفاء منه", isCorrect: false }
+            ]
+        },
+        {
+            question: "هل فحص الماموجرام (Mammogram) آمن؟",
+            options: [
+                { letter: "A", text: "آمن جداً وجرعته الإشعاعية ضئيلة", isCorrect: true },
+                { letter: "B", text: "ضار جداً ويسبب المرض", isCorrect: false },
+                { letter: "C", text: "مؤلم ولا يعطي نتائج", isCorrect: false },
+                { letter: "D", text: "غير معتمد طبيّاً", isCorrect: false }
+            ]
+        },
+        {
+            question: "هل عدم وجود تاريخ عائلي يعني عدم إمكانية الإصابة؟",
+            options: [
+                { letter: "A", text: "نعم، هو مرض وراثي فقط", isCorrect: false },
+                { letter: "B", text: "لا، غالبية الحالات ليس لديها تاريخ عائلي", isCorrect: true },
+                { letter: "C", text: "نعم، يمنح حصانة كاملة", isCorrect: false },
+                { letter: "D", text: "لا أحد يعلم", isCorrect: false }
+            ]
+        }
+    ];
+
+    let currentIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    function loadQuestion() {
+        answered = false;
+        const q = questions[currentIndex];
+        
+        document.getElementById('question-counter').textContent = السؤال ${currentIndex + 1} من ${questions.length};
+        document.getElementById('question-text').textContent = q.question;
+        
+        const grid = document.getElementById('options-grid');
+        grid.innerHTML = '';
+
+        q.options.forEach((opt) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            
+            btn.innerHTML = `
+                <div class="option-content">
+                    <span class="letter-badge">${opt.letter}</span>
+                    <span>${opt.text}</span>
+                </div>
+                <span class="status-icon"></span>
+            `;
+
+            btn.onclick = () => selectAnswer(btn, opt.isCorrect);
+            grid.appendChild(btn);
+        });
+    }
+
+    function selectAnswer(btnElement, isCorrect) {
+        if (answered) return;
+        answered = true;
+
+        const iconSpan = btnElement.querySelector('.status-icon');
+
+        if (isCorrect) {
+            btnElement.classList.add('correct');
+            iconSpan.innerHTML = '<span class="icon-check">✓</span>';
+            score++;
+            document.getElementById('current-score').textContent = score;
+        } else {
+            btnElement.classList.add('wrong');
+            iconSpan.innerHTML = '<span class="icon-cross">✕</span>';
+
+            // إظهار الخيار الصحيح تلقائياً
+            const allBtns = document.querySelectorAll('.option-btn');
+            questions[currentIndex].options.forEach((opt, idx) => {
+                if (opt.isCorrect) {
+                    allBtns[idx].classList.add('correct');
+                    allBtns[idx].querySelector('.status-icon').innerHTML = '<span class="icon-check">✓</span>';
+                }
+            });
+        }
+    }
+
+    function nextQuestion() {
+        if (currentIndex < questions.length - 1) {
+            currentIndex++;
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('quiz-box').style.display = 'none';
+        document.getElementById('result-box').style.display = 'block';
+        document.getElementById('final-score').textContent = ${score} / ${questions.length};
+
+        const desc = document.getElementById('result-desc');
+        if (score === 5) {
+            desc.textContent = "ممتاز! معرفتك ممتازة بأساسيات التوعية والكشف المبكر 🎯";
+        } else if (score >= 3) {
+            desc.textContent = "نتيجة جيدة جداً! شكراً لمشاركتك في هذا التحدي التوعوي 👍";
+        } else {
+            desc.textContent = "شكراً لمشاركتك! التوعية والكشف المبكر يمثلان الخطوة الأهم دائماً 🌸";
+        }
+    }
+
+    function restartQuiz() {
+        currentIndex = 0;
+        score = 0;
+        document.getElementById('current-score').textContent = '0';
+        document.getElementById('result-box').style.display = 'none';
+        document.getElementById('quiz-box').style.display = 'block';
+        loadQuestion();
+    }
+
+    // التشغيل عند الفتح
+    loadQuestion();
+</script>
+
+</body>
+</html>
